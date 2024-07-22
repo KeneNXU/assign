@@ -1,0 +1,100 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Data{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-sm-6">
+    <h1>Expense Submission Form</h1>
+    <form id="expenseForm">
+      <div class="form-group">
+        <label for="age">Age:</label>
+        <input type="number" class="form-control" id="age" name="age" required>
+      </div>
+      <div class="form-group">
+        <label for="gender">Gender:</label>
+        <select class="form-control" id="gender" name="gender" required>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="income">Total Income:</label>
+        <input type="number" class="form-control" id="income" name="income" required>
+      </div>
+      <div class="form-group">
+        <label>Expenses:</label>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="utilitiesCheckbox" name="expenses[]" value="utilities">
+          <label class="form-check-label" for="utilitiesCheckbox">Utilities</label>
+          <input type="number" class="form-control mt-2" id="utilitiesAmount" name="utilities_amount" placeholder="Amount spent on utilities" disabled>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="healthcareCheckbox" name="expenses[]" value="healthcare">
+          <label class="form-check-label" for="healthcareCheckbox">Health Care</label>
+          <input type="number" class="form-control mt-2" id="healthcareAmount" name="healthcare_amount" placeholder="Amount spent on health care" disabled>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="entertainmentCheckbox" name="expenses[]" value="entertainment">
+          <label class="form-check-label" for="entertainmentCheckbox">Entertainment</label>
+          <input type="number" class="form-control mt-2" id="entertainmentAmount" name="entertainment_amount" placeholder="Amount spent on entertainment" disabled>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="schoolfeesCheckbox" name="expenses[]" value="schoolfees">
+          <label class="form-check-label" for="schoolfeesCheckbox">School Fees</label>
+          <input type="number" class="form-control mt-2" id="schoolfeesAmount" name="schoolfees_amount" placeholder="Amount spent on school fees" disabled>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="shoppingCheckbox" name="expenses[]" value="shopping">
+          <label class="form-check-label" for="shoppingCheckbox">Shopping</label>
+          <input type="number" class="form-control mt-2" id="shoppingAmount" name="shopping_amount" placeholder="Amount spent on shopping" disabled>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const expensesCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    expensesCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const amountInput = document.getElementById(this.id.replace('Checkbox', 'Amount'));
+        amountInput.disabled = !this.checked;
+      });
+    });
+
+    document.getElementById('expenseForm').addEventListener('submit', function(event) {
+      event.preventDefault();  // Prevent the default form submission
+
+      const formData = new FormData(this);
+      const data = {};
+
+      formData.forEach((value, key) => {
+        if (key.endsWith('_amount')) {
+          key = key.replace('_amount', '');
+          if (!data['expenses']) data['expenses'] = {};
+          data['expenses'][key] = parseFloat(value) || 0;
+        } else {
+          if (!data[key]) data[key] = value;
+        }
+      });
+
+      fetch('/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+  });
+</script>
+{% endblock %}
