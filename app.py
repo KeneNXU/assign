@@ -18,9 +18,10 @@ from flask_wtf.csrf import CSRFProtect
 csrf = CSRFProtect()
 app = Flask(__name__)
 app.secret_key = os.urandom(32)
-mongo_pwd = "CIpIq7xZoMiLOLnU"
+mongo_pwd = os.environ.get('MONGO_PWD')
 # app.config["MONGO_URI"] = "mongodb://localhost:27017/mydatabase"
 app.config["MONGO_URI"] = f"mongodb+srv://kgobianagha:{mongo_pwd}@cluster0.s0vyuej.mongodb.net/mydatabase?retryWrites=true&w=majority&appName=Cluster0"
+# app.config["MONGO_URI"] = os.environ.get('MONGO_URI')
 
 # Initialize PyMongo
 mongo = PyMongo(app)
